@@ -4,3 +4,6 @@
 
 /Model2SQLClient/obj/Debug
 /Model2SQLClient/bin/Debug
+/Model2SQLClient/bin/Release
+/Model2SQLClient/obj/Release
+/VSIXModelToSQL/obj
