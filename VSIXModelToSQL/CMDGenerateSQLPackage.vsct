@@ -37,7 +37,7 @@
          must be a menu. -->
     <Groups>
       <Group guid="guidCMDGenerateSQLPackageCmdSet" id="MyMenuGroup" priority="0x0600">
-        <Parent guid="guidSHLMainMenu" id="IDM_VS_MENU_TOOLS"/>
+        <Parent guid="guidCodeWindowRightClickCmdSet" id="codeWindowRightClickMenu"/>
       </Group>
     </Groups>
 
@@ -82,9 +82,13 @@
       <IDSymbol name="MyMenuGroup" value="0x1020" />
       <IDSymbol name="CMDGenerateSQLId" value="0x0100" />
     </GuidSymbol>-->
-    <GuidSymbol name="guidCMDGenerateSQLPackageCmdSet" value="{D309F791-903F-11D0-9EFC-00A0C911004F}">
-      <IDSymbol name="MyMenuGroup" value="1037" />
+    <GuidSymbol name="guidCMDGenerateSQLPackageCmdSet" value="{632d9672-850f-4e45-9820-bf635b7dde08}">
+      <IDSymbol name="MyMenuGroup" value="0x0200" />
       <IDSymbol name="CMDGenerateSQLId" value="0x0100" />
+    </GuidSymbol>
+
+    <GuidSymbol name="guidCodeWindowRightClickCmdSet" value="{D309F791-903F-11D0-9EFC-00A0C911004F}">
+      <IDSymbol name="codeWindowRightClickMenu" value="1037" />
     </GuidSymbol>
 
     <GuidSymbol name="guidImages" value="{68e44251-7736-4a71-b0cc-e5a3e0e3c954}" >
