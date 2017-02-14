@@ -65,6 +65,11 @@ namespace VSIXModelToSQL
             }
         }
 
+        /// <summary>
+        /// 只有.cs的文件邮件可以弹出快捷菜单
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void CheckMenuStatus(object sender, EventArgs e)
         {
             OleMenuCommand menuCommand = sender as OleMenuCommand;

@@ -70,6 +70,7 @@
     <Content Include="index.html" />
     <Content Include="Resources\CMDGenerateSQL.png" />
     <Content Include="Resources\CMDGenerateSQLPackage.ico" />
+    <Content Include="Resources\plugIcon.ico" />
     <Content Include="stylesheet.css" />
   </ItemGroup>
   <ItemGroup>

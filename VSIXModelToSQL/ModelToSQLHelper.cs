@@ -83,11 +83,6 @@ namespace VSIXModelToSQL
                 //查找命名空间
                 if (element.Kind == vsCMElement.vsCMElementNamespace)
                 {
-                    foreach (CodeElement c in element.Collection)
-                    {
-                        var kind = c.Kind;
-                    }
-
                     foreach (CodeElement c in element.Children)
                     {
                         //定位到类
@@ -95,132 +90,9 @@ namespace VSIXModelToSQL
                         {
                             CodeClass2 clazz = c as CodeClass2;
                             sql += "CREATE TABLE [dbo].[" + clazz.Name + "] (" + Environment.NewLine;
-                            string functionContent = clazz.StartPoint.CreateEditPoint().GetText(clazz.EndPoint);
-
+                            //string functionContent = clazz.StartPoint.CreateEditPoint().GetText(clazz.EndPoint);
+                            //递归获取所有基类和子类的字段
                             GetPropertiesInfo(clazz, clazz.Name, ref sql, ref keyConstrait, ref descriptions);
-                            ////定位到属性
-                            //foreach (CodeElement prop in clazz.Members)
-                            //{
-                            //    if (prop.Kind == vsCMElement.vsCMElementProperty)
-                            //    {
-                            //        //去掉需要忽略的列
-                            //        if (IgnoreFieldList.Any(t => t == prop.Name))
-                            //        {
-                            //            continue;
-                            //        }
-
-                            //        CodeProperty2 p = prop as CodeProperty2;
-                            //        string rawTypeName = p.Type.AsFullName;
-                            //        string rawDocComment = p.DocComment;
-                            //        Type cType = Type.GetType(rawTypeName);
-
-
-                            //        //描述信息
-                            //        bool isPrimaryKey = false;
-                            //        // 字段描述
-                            //        string desc = "";
-                            //        int maxLength = DefaultStringLength;
-
-                            //        int maxAttrLen = DefaultStringLength;
-                            //        int minAttrLen = DefaultStringLength;
-
-                            //        int maxStrLen = DefaultStringLength;
-                            //        int minStrLen = DefaultStringLength;
-                            //        //定位自定义属性信息
-                            //        foreach (CodeAttribute2 attr in p.Attributes)
-                            //        {
-                            //            //属性是否有标记最大或者最小长度、字符串长度
-                            //            if (attr.Name == "MaxLength")
-                            //            {
-                            //                //500, ErrorMessage = "最大长度是500啊"
-                            //                foreach (CodeAttributeArgument attrArg in attr.Arguments)
-                            //                {
-                            //                    if (attrArg.Name == "" || attrArg.Name == "MaximumLength")
-                            //                    {
-                            //                        //第一个没有名称的参数为最大长度
-                            //                        maxAttrLen = Convert.ToInt32(attrArg.Value);
-                            //                    }
-                            //                    else if (attrArg.Name == "ErrorMessage")
-                            //                    {
-                            //                        //错误描述
-                            //                    }
-                            //                }
-                            //            }
-                            //            else if (attr.Name == "MinLength")
-                            //            {
-                            //                foreach (CodeAttributeArgument attrArg in attr.Arguments)
-                            //                {
-                            //                    if (attrArg.Name == "" || attrArg.Name == "MinimumLength")
-                            //                    {
-                            //                        //第一个没有名称的参数为最小长度
-                            //                        minAttrLen = Convert.ToInt32(attrArg.Value);
-                            //                    }
-                            //                    else if (attrArg.Name == "ErrorMessage")
-                            //                    {
-                            //                        //错误描述
-                            //                    }
-                            //                }
-                            //            }
-                            //            else if (attr.Name == "StringLength")
-                            //            {
-                            //                foreach (CodeAttributeArgument attrArg in attr.Arguments)
-                            //                {
-                            //                    if (attrArg.Name == "" || attrArg.Name == "MaximumLength")
-                            //                    {
-                            //                        //第一个没有名称的参数为最大长度
-                            //                        maxStrLen = Convert.ToInt32(attrArg.Value);
-                            //                    }
-                            //                    else if (attrArg.Name == "MinimumLength")
-                            //                    {
-                            //                        //第一个没有名称的参数为最大长度
-                            //                        minStrLen = Convert.ToInt32(attrArg.Value);
-                            //                    }
-                            //                    else if (attrArg.Name == "ErrorMessage")
-                            //                    {
-                            //                        //错误描述
-                            //                    }
-                            //                }
-                            //            }
-                            //            else if (attr.Name == "Display")
-                            //            {
-                            //                foreach (CodeAttributeArgument attrArg in attr.Arguments)
-                            //                {
-                            //                    if (attrArg.Name == "Name")
-                            //                    {
-                            //                        desc = attrArg.Value.Trim('"');
-                            //                        break;
-                            //                    }
-                            //                }
-                            //            }
-                            //            else if (attr.Name == "Key")
-                            //            {
-                            //                //如果是Key属性，则认为其是主键
-                            //                isPrimaryKey = true;
-                            //                keyConstrait = @" CONSTRAINT [PK_" + prop.Name + @"] PRIMARY KEY CLUSTERED" +
-                            //                "(" +
-                            //                "    [" + prop.Name + @"] ASC" +
-                            //                " )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]";
-                            //            }
-                            //        }
-
-                            //        //根据长度约束条件获取最大长度
-                            //        maxLength = Math.Max(maxStrLen, Math.Max(minAttrLen, maxLength));
-                            //        //描述信息以Display为准
-                            //        desc = string.IsNullOrEmpty(desc) ? GetCommentFromXMLString(rawDocComment) : desc;
-                            //        desc = isPrimaryKey ? "主键 " + desc : desc;
-                            //        //属性名称
-                            //        sql += "    [" + prop.Name + "] " + GetSQLType(cType, maxLength) + "," + Environment.NewLine;
-                            //        descriptions += (Environment.NewLine + @"EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'" + desc + "' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'" + clazz.Name + "', @level2type=N'COLUMN',@level2name=N'" + prop.Name + "'") + Environment.NewLine + "GO";
-                            //    }
-                            //    else if (prop.Kind == vsCMElement.vsCMElementVariable)
-                            //    {
-                            //        CodeVariable2 v = prop as CodeVariable2;
-                            //    }
-                            //    else
-                            //    {
-                            //        Console.WriteLine("" + prop.Kind);
-                            //    }
-                            //}
                         }
                     }
                 }

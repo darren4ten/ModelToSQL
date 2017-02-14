@@ -54,7 +54,7 @@
           If you do not want an image next to your command, remove the Icon node /> -->
       <Button guid="guidCMDGenerateSQLPackageCmdSet" id="CMDGenerateSQLId" priority="0x0100" type="Button">
         <Parent guid="guidCMDGenerateSQLPackageCmdSet" id="MyMenuGroup" />
-        <Icon guid="guidImages" id="bmpPic1" />
+        <Icon guid="plugIcons" id="plugIcon1" />
         <CommandFlag>DynamicVisibility</CommandFlag>
         <Strings>
           <ButtonText>打开ModelToSQL客户端</ButtonText>
@@ -70,8 +70,13 @@
             inside a button definition. An important aspect of this declaration is that the element id
             must be the actual index (1-based) of the bitmap inside the bitmap strip. -->
       <Bitmap guid="guidImages" href="Resources\CMDGenerateSQL.png" usedList="bmpPic1, bmpPic2, bmpPicSearch, bmpPicX, bmpPicArrows, bmpPicStrikethrough"/>
+      <Bitmap guid="plugIcons" href="Resources\plugIcon.ico" usedList="plugIcon1"/>
     </Bitmaps>
   </Commands>
+
+  <KeyBindings>
+    <KeyBinding guid="guidCMDGenerateSQLPackageCmdSet" id="CMDGenerateSQLId" editor="guidVSStd97" key1="1" mod1="Control" />
+  </KeyBindings>
 
   <Symbols>
     <!-- This is the package guid. -->
@@ -91,6 +96,9 @@
       <IDSymbol name="codeWindowRightClickMenu" value="1037" />
     </GuidSymbol>
 
+    <GuidSymbol name="plugIcons" value="{88e44251-7736-4a71-b0cc-e5a3e0e3c954}" >
+      <IDSymbol name="plugIcon1" value="1" />
+    </GuidSymbol>
     <GuidSymbol name="guidImages" value="{68e44251-7736-4a71-b0cc-e5a3e0e3c954}" >
       <IDSymbol name="bmpPic1" value="1" />
       <IDSymbol name="bmpPic2" value="2" />
