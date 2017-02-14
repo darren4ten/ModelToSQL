@@ -14,7 +14,9 @@ namespace VSIXModelToSQL
         /// <summary>
         /// 需要忽略的字段名称
         /// </summary>
-        public static List<string> IgnoreFieldList = new List<string>() { "ObjectState" };
+        public static List<string> IgnoreFieldList = new List<string>() { };
+
+        public static List<string> IgnoreAttributeList = new List<string>() { "NotMapped" };
 
         /// <summary>
         /// 默认字符串长度
@@ -178,11 +180,11 @@ namespace VSIXModelToSQL
                     CodeProperty2 p = prop as CodeProperty2;
                     string rawTypeName = p.Type.AsFullName;
                     string rawDocComment = p.DocComment;
-                    Type cType = Type.GetType(rawTypeName);
-
 
                     //描述信息
                     bool isPrimaryKey = false;
+                    //是否需要跳过
+                    bool isSkipProperty = false;
                     // 字段描述
                     string desc = "";
                     int maxLength = DefaultStringLength;
@@ -258,6 +260,12 @@ namespace VSIXModelToSQL
                                 }
                             }
                         }
+                        else if (IgnoreAttributeList.Any(x => x == attr.Name))
+                        {
+                            //如果是需要忽略的字段，则跳过
+                            isSkipProperty = true;
+                            break;
+                        }
                         else if (attr.Name == "Key")
                         {
                             //如果是Key属性，则认为其是主键
@@ -267,6 +275,12 @@ namespace VSIXModelToSQL
                             "    [" + prop.Name + @"] ASC" +
                             " )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]";
                         }
+                    }
+
+                    //如果需要跳过，则跳过
+                    if (isSkipProperty)
+                    {
+                        continue;
                     }
 
                     //根据长度约束条件获取最大长度
