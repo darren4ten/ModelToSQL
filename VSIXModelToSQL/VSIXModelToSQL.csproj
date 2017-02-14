@@ -53,6 +53,7 @@
   <ItemGroup>
     <Compile Include="CMDGenerateSQL.cs" />
     <Compile Include="CMDGenerateSQLPackage.cs" />
+    <Compile Include="ModelToSQLHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

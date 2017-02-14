@@ -1,0 +1,245 @@
+﻿using EnvDTE;
+using EnvDTE80;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+
+namespace VSIXModelToSQL
+{
+    public class ModelToSQLHelper
+    {
+        /// <summary>
+        /// 需要忽略的字段名称
+        /// </summary>
+        public static List<string> IgnoreFieldList = new List<string>() { "ObjectState" };
+
+        /// <summary>
+        /// 默认字符串长度
+        /// </summary>
+        public static int DefaultStringLength = 200;
+
+
+        /// <summary>
+        /// 根据C#类型获取对应SQL类型和长度
+        /// </summary>
+        /// <param name="CSharpType"></param>
+        /// <param name="maxLength"></param>
+        /// <returns></returns>
+        public static string GetSQLType(Type CSharpType, int maxLength)
+        {
+            string sqlType = "";
+            if (typeof(string) == CSharpType || typeof(char) == CSharpType)
+            {
+                sqlType = "NVARCHAR(" + maxLength + ")";
+            }
+            else if (typeof(int) == CSharpType)
+            {
+                sqlType = "INT";
+            }
+            else if (typeof(bool) == CSharpType)
+            {
+                sqlType = "BIT";
+            }
+            else if (typeof(decimal) == CSharpType || typeof(decimal?) == CSharpType || typeof(float) == CSharpType || typeof(float?) == CSharpType || typeof(double) == CSharpType || typeof(double?) == CSharpType)
+            {
+                sqlType = "DECIMAL(18,2)";
+            }
+            else if (typeof(byte[]) == CSharpType)//默认byte[]类型识别为时间戳
+            {
+                sqlType = "TIMESTAMP";
+            }
+            else if (typeof(DateTime) == CSharpType || typeof(DateTime?) == CSharpType)
+            {
+                sqlType = "DATETIME";
+            }
+            else if (typeof(Guid) == CSharpType)
+            {
+                sqlType = "UNIQUEIDENTIFIER";
+            }
+
+            return sqlType;
+        }
+
+        public static string GenerateSQL(DTE dte)
+        {
+            dte = Microsoft.VisualStudio.Shell.ServiceProvider.GlobalProvider.GetService(typeof(DTE)) as DTE;
+            string sql = "";
+            string descriptions = "";
+            string keyConstrait = "";
+            if (dte == null)
+                return sql;
+
+            var item = dte.ActiveDocument.ProjectItem;
+            var codeModel = item.FileCodeModel;
+            var eles = codeModel.CodeElements;
+            int cnt = eles.Count;
+            foreach (CodeElement element in eles)
+            {
+                string codeKind = element.Kind.ToString();
+
+                //查找命名空间
+                if (element.Kind == vsCMElement.vsCMElementNamespace)
+                {
+                    foreach (CodeElement c in element.Children)
+                    {
+                        //定位到类
+                        if (c.Kind == vsCMElement.vsCMElementClass)
+                        {
+                            CodeClass2 clazz = c as CodeClass2;
+                            sql += "CREATE TABLE [dbo].[" + clazz.Name + "] (" + Environment.NewLine;
+
+                            //定位到属性
+                            foreach (CodeElement prop in clazz.Members)
+                            {
+                                if (prop.Kind == vsCMElement.vsCMElementProperty)
+                                {
+                                    //去掉需要忽略的列
+                                    if (IgnoreFieldList.Any(t => t == prop.Name))
+                                    {
+                                        continue;
+                                    }
+
+                                    CodeProperty2 p = prop as CodeProperty2;
+                                    string rawTypeName = p.Type.AsFullName;
+                                    string rawDocComment = p.DocComment;
+                                    Type cType = Type.GetType(rawTypeName);
+
+
+                                    //描述信息
+                                    bool isPrimaryKey = false;
+                                    // 字段描述
+                                    string desc = "";
+                                    int maxLength = DefaultStringLength;
+
+                                    int maxAttrLen = DefaultStringLength;
+                                    int minAttrLen = DefaultStringLength;
+
+                                    int maxStrLen = DefaultStringLength;
+                                    int minStrLen = DefaultStringLength;
+                                    //定位自定义属性信息
+                                    foreach (CodeAttribute2 attr in p.Attributes)
+                                    {
+                                        //属性是否有标记最大或者最小长度、字符串长度
+                                        if (attr.Name == "MaxLength")
+                                        {
+                                            //500, ErrorMessage = "最大长度是500啊"
+                                            foreach (CodeAttributeArgument attrArg in attr.Arguments)
+                                            {
+                                                if (attrArg.Name == "" || attrArg.Name == "MaximumLength")
+                                                {
+                                                    //第一个没有名称的参数为最大长度
+                                                    maxAttrLen = Convert.ToInt32(attrArg.Value);
+                                                }
+                                                else if (attrArg.Name == "ErrorMessage")
+                                                {
+                                                    //错误描述
+                                                }
+                                            }
+                                        }
+                                        else if (attr.Name == "MinLength")
+                                        {
+                                            foreach (CodeAttributeArgument attrArg in attr.Arguments)
+                                            {
+                                                if (attrArg.Name == "" || attrArg.Name == "MinimumLength")
+                                                {
+                                                    //第一个没有名称的参数为最小长度
+                                                    minAttrLen = Convert.ToInt32(attrArg.Value);
+                                                }
+                                                else if (attrArg.Name == "ErrorMessage")
+                                                {
+                                                    //错误描述
+                                                }
+                                            }
+                                        }
+                                        else if (attr.Name == "StringLength")
+                                        {
+                                            foreach (CodeAttributeArgument attrArg in attr.Arguments)
+                                            {
+                                                if (attrArg.Name == "" || attrArg.Name == "MaximumLength")
+                                                {
+                                                    //第一个没有名称的参数为最大长度
+                                                    maxStrLen = Convert.ToInt32(attrArg.Value);
+                                                }
+                                                else if (attrArg.Name == "MinimumLength")
+                                                {
+                                                    //第一个没有名称的参数为最大长度
+                                                    minStrLen = Convert.ToInt32(attrArg.Value);
+                                                }
+                                                else if (attrArg.Name == "ErrorMessage")
+                                                {
+                                                    //错误描述
+                                                }
+                                            }
+                                        }
+                                        else if (attr.Name == "Display")
+                                        {
+                                            foreach (CodeAttributeArgument attrArg in attr.Arguments)
+                                            {
+                                                if (attrArg.Name == "Name")
+                                                {
+                                                    desc = attrArg.Value.Trim('"');
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                        else if (attr.Name == "Key")
+                                        {
+                                            //如果是Key属性，则认为其是主键
+                                            isPrimaryKey = true;
+                                            keyConstrait = @" CONSTRAINT [PK_" + prop.Name + @"] PRIMARY KEY CLUSTERED" +
+                                            "(" +
+                                            "    [" + prop.Name + @"] ASC" +
+                                            " )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]";
+                                        }
+                                    }
+
+                                    //根据长度约束条件获取最大长度
+                                    maxLength = Math.Max(maxStrLen, Math.Max(minAttrLen, maxLength));
+                                    //描述信息以Display为准
+                                    desc = string.IsNullOrEmpty(desc) ? GetCommentFromXMLString(rawDocComment) : desc;
+                                    desc = isPrimaryKey ? "主键 " + desc : desc;
+                                    //属性名称
+                                    sql += "    [" + prop.Name + "] " + GetSQLType(cType, maxLength) + "," + Environment.NewLine;
+                                    descriptions += (Environment.NewLine + @"EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'" + desc + "' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'" + clazz.Name + "', @level2type=N'COLUMN',@level2name=N'" + prop.Name + "'") + Environment.NewLine + "GO";
+                                }
+                                else if (prop.Kind == vsCMElement.vsCMElementVariable)
+                                {
+                                    CodeVariable2 v = prop as CodeVariable2;
+                                }
+                                else
+                                {
+                                    Console.WriteLine("" + prop.Kind);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            sql += keyConstrait;
+            sql += ");" + Environment.NewLine + "GO " + descriptions;
+            return sql;
+        }
+
+        private static string GetCommentFromXMLString(string xml)
+        {
+            string msg = "";
+            Regex reg = new Regex("summary>\r\n(.*)\r\n<", RegexOptions.Multiline);
+
+            var matches = reg.Matches(xml);
+
+            foreach (Match match in matches)
+            {
+                if (match.Groups.Count > 1)
+                {
+                    msg = match.Groups[1].Value;
+                    break;
+                }
+            }
+            return msg;
+        }
+    }
+}

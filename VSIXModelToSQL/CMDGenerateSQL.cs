@@ -11,6 +11,12 @@ using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using EnvDTE;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using EnvDTE80;
+using System.Windows.Forms;
 
 namespace VSIXModelToSQL
 {
@@ -58,6 +64,7 @@ namespace VSIXModelToSQL
                 commandService.AddCommand(menuItem);
             }
         }
+
         private void CheckMenuStatus(object sender, EventArgs e)
         {
             OleMenuCommand menuCommand = sender as OleMenuCommand;
@@ -86,10 +93,25 @@ namespace VSIXModelToSQL
                 }
             }
         }
-        private  void OpenModelToSQLClient(object sender, EventArgs e)
+        #region 自定义代码
+        private void OpenModelToSQLClient(object sender, EventArgs e)
         {
-            Process.Start(@"D:\MyProjects\Git\PluginProject\Model2SqlDemo\Model2SQLClient\bin\Debug\Model2SQLClient.exe");
+            DTE dte = Microsoft.VisualStudio.Shell.ServiceProvider.GlobalProvider.GetService(typeof(DTE)) as DTE;
+            if (dte == null)
+                return;
+            //var selectedText = dte.ActiveDocument.Selection as TextSelection;
+            //if (!string.IsNullOrEmpty(selectedText.Text))
+            //{
+
+            //}
+
+            string sql = ModelToSQLHelper.GenerateSQL(dte);
+            // 拷贝到剪贴板
+            Clipboard.SetText(sql);
+            //   System.Diagnostics.Process.Start(@"D:\MyProjects\Git\PluginProject\Model2SqlDemo\Model2SQLClient\bin\Debug\Model2SQLClient.exe");
         }
+
+        #endregion
 
         /// <summary>
         /// Gets the instance of the command.
