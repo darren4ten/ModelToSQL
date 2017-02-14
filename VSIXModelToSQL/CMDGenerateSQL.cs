@@ -99,16 +99,10 @@ namespace VSIXModelToSQL
             DTE dte = Microsoft.VisualStudio.Shell.ServiceProvider.GlobalProvider.GetService(typeof(DTE)) as DTE;
             if (dte == null)
                 return;
-            //var selectedText = dte.ActiveDocument.Selection as TextSelection;
-            //if (!string.IsNullOrEmpty(selectedText.Text))
-            //{
-
-            //}
 
             string sql = ModelToSQLHelper.GenerateSQL(dte);
             // 拷贝到剪贴板
             Clipboard.SetText(sql);
-            //   System.Diagnostics.Process.Start(@"D:\MyProjects\Git\PluginProject\Model2SqlDemo\Model2SQLClient\bin\Debug\Model2SQLClient.exe");
         }
 
         #endregion
