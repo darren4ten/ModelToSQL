@@ -63,6 +63,47 @@ namespace VSIXModelToSQL
             return sqlType;
         }
 
+        /// <summary>
+        /// 根据C#类型获取对应SQL类型和长度
+        /// </summary>
+        /// <param name="rawCSharpType"></param>
+        /// <param name="maxLength"></param>
+        /// <returns></returns>
+        public static string GetSQLType(string rawCSharpType, int maxLength)
+        {
+            string sqlType = "";
+            if (rawCSharpType.Contains("System.String") || rawCSharpType.Contains("System.Char"))
+            {
+                sqlType = "NVARCHAR(" + maxLength + ")";
+            }
+            else if (rawCSharpType.Contains("System.Int32"))
+            {
+                sqlType = "INT";
+            }
+            else if (rawCSharpType.Contains("System.Boolean"))
+            {
+                sqlType = "BIT";
+            }
+            else if (rawCSharpType.Contains("System.Decimal") || rawCSharpType.Contains("System.Single") || rawCSharpType.Contains("System.Double"))
+            {
+                sqlType = "DECIMAL(18,2)";
+            }
+            else if (rawCSharpType.Contains("System.Byte[]"))//默认byte[]类型识别为时间戳
+            {
+                sqlType = "TIMESTAMP";
+            }
+            else if (rawCSharpType.Contains("System.DateTime"))
+            {
+                sqlType = "DATETIME";
+            }
+            else if (rawCSharpType.Contains("System.Guid"))
+            {
+                sqlType = "UNIQUEIDENTIFIER";
+            }
+
+            return sqlType;
+        }
+
         public static string GenerateSQL(DTE dte)
         {
             dte = Microsoft.VisualStudio.Shell.ServiceProvider.GlobalProvider.GetService(typeof(DTE)) as DTE;
@@ -234,7 +275,7 @@ namespace VSIXModelToSQL
                     desc = string.IsNullOrEmpty(desc) ? GetCommentFromXMLString(rawDocComment) : desc;
                     desc = isPrimaryKey ? "主键 " + desc : desc;
                     //属性名称
-                    sql += "    [" + prop.Name + "] " + GetSQLType(cType, maxLength) + "," + Environment.NewLine;
+                    sql += "    [" + prop.Name + "] " + GetSQLType(rawTypeName, maxLength) + "," + Environment.NewLine;
                     //如果描述信息不为空，则添加描述信息
                     if (!string.IsNullOrEmpty(desc))
                     {
