@@ -133,20 +133,21 @@ namespace VSIXModelToSQL
 
             return sqlType;
         }
-
-        public static string GenerateSQL(DTE dte)
+        #region 获取代码信息
+        /// <summary>
+        /// 根据DTE获取CodeClass2
+        /// </summary>
+        /// <param name="dte"></param>
+        /// <returns></returns>
+        public static CodeClass2 GetCodeClass2(DTE dte)
         {
-            dte = Microsoft.VisualStudio.Shell.ServiceProvider.GlobalProvider.GetService(typeof(DTE)) as DTE;
-            string sql = "";
-            string descriptions = "";
-            string keyConstrait = "";
+            CodeClass2 codeClzz = null;
             if (dte == null)
-                return sql;
-
+                return codeClzz;
             var item = dte.ActiveDocument.ProjectItem;
             var codeModel = item.FileCodeModel;
             var eles = codeModel.CodeElements;
-            int cnt = eles.Count;
+
             foreach (CodeElement element in eles)
             {
                 string codeKind = element.Kind.ToString();
@@ -159,18 +160,160 @@ namespace VSIXModelToSQL
                         //定位到类
                         if (c.Kind == vsCMElement.vsCMElementClass)
                         {
-                            CodeClass2 clazz = c as CodeClass2;
-                            sql += "CREATE TABLE [dbo].[" + clazz.Name + "] (" + Environment.NewLine;
-                            //string functionContent = clazz.StartPoint.CreateEditPoint().GetText(clazz.EndPoint);
-                            //递归获取所有基类和子类的字段
-                            GetPropertiesInfo(clazz, clazz.Name, ref sql, ref keyConstrait, ref descriptions);
+                            codeClzz = c as CodeClass2;
                         }
                     }
                 }
             }
 
-            sql += keyConstrait;
-            sql += ");" + Environment.NewLine + "GO " + descriptions;
+            return codeClzz;
+        }
+
+        /// <summary>
+        /// 根据DTE获取CodeClass2
+        /// </summary>
+        /// <param name="dte"></param>
+        /// <returns></returns>
+        public static CodeClass2 GetCodeClass2(CodeElements eles)
+        {
+            CodeClass2 codeClzz = null;
+            foreach (CodeElement element in eles)
+            {
+                string codeKind = element.Kind.ToString();
+
+                //查找命名空间
+                if (element.Kind == vsCMElement.vsCMElementNamespace)
+                {
+                    foreach (CodeElement c in element.Children)
+                    {
+                        //定位到类
+                        if (c.Kind == vsCMElement.vsCMElementClass)
+                        {
+                            codeClzz = c as CodeClass2;
+                        }
+                    }
+                }
+            }
+
+            return codeClzz;
+        }
+
+        /// <summary>
+        /// 获取类的所有Property信息
+        /// </summary>
+        /// <param name="codeClass"></param>
+        /// <param name="isRecursive">是否递归获取父类的信息</param>
+        /// <returns></returns>
+        public static List<CodeProperty2> GetCodeProperty2s(CodeClass2 codeClass, bool isRecursive = false)
+        {
+            List<CodeProperty2> list = new List<CodeProperty2>();
+            //获取基类的属性信息
+            if (isRecursive && codeClass.Bases.Count > 0)
+            {
+                var baseElements = codeClass.Bases as CodeElements;
+                if (baseElements != null)
+                {
+                    CodeClass2 clazz = GetCodeClass2(baseElements);
+                    list.AddRange(GetCodeProperty2s(clazz));
+                }
+            }
+
+            //获取当前类的属性
+            foreach (CodeElement prop in codeClass.Members)
+            {
+                if (prop.Kind == vsCMElement.vsCMElementProperty)
+                {
+                    CodeProperty2 p = prop as CodeProperty2;
+                    list.Add(p);
+                }
+                else if (prop.Kind == vsCMElement.vsCMElementVariable)
+                {
+                    CodeVariable2 v = prop as CodeVariable2;
+                }
+                else
+                {
+                    Console.WriteLine("" + prop.Kind);
+                }
+            }
+            return list;
+        }
+
+        /// <summary>
+        /// 获取属性的所有自定义特性
+        /// </summary>
+        /// <param name="property"></param>
+        /// <returns></returns>
+        public static List<CodeAttribute2> GetCodeAttribute2s(CodeProperty2 property)
+        {
+            List<CodeAttribute2> list = new List<CodeAttribute2>();
+            //定位自定义属性信息
+            foreach (CodeAttribute2 attr in property.Attributes)
+            {
+                list.Add(attr);
+            }
+            return list;
+        }
+
+        /// <summary>
+        /// 获取特性参数信息
+        /// </summary>
+        /// <param name="attr"></param>
+        /// <returns></returns>
+        public static List<CodeAttributeArgument> GetCodeAttrArgs(CodeAttribute2 attr)
+        {
+            List<CodeAttributeArgument> list = new List<CodeAttributeArgument>();
+            foreach (CodeAttributeArgument attrArg in attr.Arguments)
+            {
+                list.Add(attrArg);
+            }
+            return list;
+        }
+
+        /// <summary>
+        ///  获取注释Summary的文字内容
+        /// </summary>
+        /// <param name="xml"></param>
+        /// <returns></returns>
+        public static string GetCommentFromXMLString(string xml)
+        {
+            string msg = "";
+            Regex reg = new Regex("summary>\r\n(.*)\r\n<", RegexOptions.Multiline);
+
+            var matches = reg.Matches(xml);
+
+            foreach (Match match in matches)
+            {
+                if (match.Groups.Count > 1)
+                {
+                    msg = match.Groups[1].Value;
+                    break;
+                }
+            }
+            return msg;
+        }
+        #endregion
+
+        public static string GenerateSQL(DTE dte)
+        {
+            dte = Microsoft.VisualStudio.Shell.ServiceProvider.GlobalProvider.GetService(typeof(DTE)) as DTE;
+            if (dte == null)
+                return "";
+
+            string sql = "";
+            string descriptions = "";
+            string keyConstrait = "";
+            var clazz = GetCodeClass2(dte);
+            if (clazz != null)
+            {
+                sql += "CREATE TABLE [dbo].[" + clazz.Name + "] (" + Environment.NewLine;
+                //string functionContent = clazz.StartPoint.CreateEditPoint().GetText(clazz.EndPoint);
+                //递归获取所有基类和子类的字段
+                GetPropertiesInfo(clazz, clazz.Name, ref sql, ref keyConstrait, ref descriptions);
+
+                sql += keyConstrait;
+                sql += ");" + Environment.NewLine + "GO " + descriptions;
+            }
+
             return sql;
         }
 
@@ -336,22 +479,6 @@ namespace VSIXModelToSQL
 
         }
 
-        private static string GetCommentFromXMLString(string xml)
-        {
-            string msg = "";
-            Regex reg = new Regex("summary>\r\n(.*)\r\n<", RegexOptions.Multiline);
 
-            var matches = reg.Matches(xml);
-
-            foreach (Match match in matches)
-            {
-                if (match.Groups.Count > 1)
-                {
-                    msg = match.Groups[1].Value;
-                    break;
-                }
-            }
-            return msg;
-        }
     }
 }

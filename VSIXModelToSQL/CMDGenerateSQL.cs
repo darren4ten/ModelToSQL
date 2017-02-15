@@ -105,10 +105,13 @@ namespace VSIXModelToSQL
             DTE dte = Microsoft.VisualStudio.Shell.ServiceProvider.GlobalProvider.GetService(typeof(DTE)) as DTE;
             if (dte == null)
                 return;
+            //DisplayOrCommentsGenerator.GenerateDisplayNameByPropertyComment(dte);
+            DisplayOrCommentsGenerator.GenerateCommentByPropertyDisplayName(dte);
 
             //获取配置信息
             ModelToSQLHelper.GetSettings(this.package, out ModelToSQLHelper.IgnoreAttributeList, out ModelToSQLHelper.IgnoreFieldList);
             string sql = ModelToSQLHelper.GenerateSQL(dte);
+
             // 拷贝到剪贴板
             Clipboard.SetText(sql);
         }
