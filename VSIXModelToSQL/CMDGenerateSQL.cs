@@ -63,6 +63,7 @@ namespace VSIXModelToSQL
                 menuItem.BeforeQueryStatus += CheckMenuStatus;
                 commandService.AddCommand(menuItem);
             }
+
         }
 
         /// <summary>
@@ -105,6 +106,8 @@ namespace VSIXModelToSQL
             if (dte == null)
                 return;
 
+            //获取配置信息
+            ModelToSQLHelper.GetSettings(this.package, out ModelToSQLHelper.IgnoreAttributeList, out ModelToSQLHelper.IgnoreFieldList);
             string sql = ModelToSQLHelper.GenerateSQL(dte);
             // 拷贝到剪贴板
             Clipboard.SetText(sql);

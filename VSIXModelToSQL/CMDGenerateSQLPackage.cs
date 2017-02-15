@@ -41,6 +41,8 @@ namespace VSIXModelToSQL
     [ProvideMenuResource("Menus.ctmenu", 1)]
     [Guid(CMDGenerateSQLPackage.PackageGuidString)]
     [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "pkgdef, VS and vsixmanifest are valid VS terms")]
+    //设置页面
+    [ProvideOptionPage(typeof(OptionSettingPage), "ModelToSQL设置", "General", 101, 106, true)]
     public sealed class CMDGenerateSQLPackage : Package
     {
         /// <summary>

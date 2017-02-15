@@ -60,6 +60,9 @@
     <Compile Include="CMDGenerateSQL.cs" />
     <Compile Include="CMDGenerateSQLPackage.cs" />
     <Compile Include="ModelToSQLHelper.cs" />
+    <Compile Include="OptionSettingPage.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

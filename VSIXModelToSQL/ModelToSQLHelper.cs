@@ -1,5 +1,7 @@
 ﻿using EnvDTE;
 using EnvDTE80;
+using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Shell.Interop;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,6 +25,32 @@ namespace VSIXModelToSQL
         /// </summary>
         public static int DefaultStringLength = 200;
 
+        public static void GetSettings(Package package, out List<string> ignoreAttributeNamesList, out List<string> ignoreFieldNamesList)
+        {
+            IVsPackage pack = package as IVsPackage;
+            ignoreAttributeNamesList = new List<string>();
+            ignoreFieldNamesList = new List<string>();
+            if (pack != null)
+            {
+                object obj;
+                pack.GetAutomationObject("ModelToSQL设置.General", out obj);
+
+                OptionSettingPage options = obj as OptionSettingPage;
+                if (options != null)
+                {
+                    string ignoreAttributeNames = options.IgnoreAttributeNames;
+                    string ignoreFieldNames = options.IgnoreFieldNames;
+                    if (!string.IsNullOrEmpty(ignoreAttributeNames))
+                    {
+                        ignoreAttributeNamesList = ignoreAttributeNames.Trim(';').Split(';').ToList();
+                    }
+                    if (!string.IsNullOrEmpty(ignoreFieldNames))
+                    {
+                        ignoreFieldNamesList = ignoreFieldNames.Trim(';').Split(';').ToList();
+                    }
+                }
+            }
+        }
 
         /// <summary>
         /// 根据C#类型获取对应SQL类型和长度
