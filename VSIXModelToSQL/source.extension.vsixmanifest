@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
   <Metadata>
-    <Identity Id="VSIXModelToSQL.Microsoft.91cfbc11-347f-45ab-9ef8-86f2fb797d9e" Version="1.0.0.0" Language="en-US" Publisher="Darren" />
+    <Identity Id="VSIXModelToSQL.Microsoft.91cfbc11-347f-45ab-9ef8-86f2fb797d9e" Version="1.0.0.2" Language="en-US" Publisher="Darren" />
     <DisplayName>ModelToSQL</DisplayName>
     <Description xml:space="preserve">C# model to sql convertor。根据C#实体生成与之对应的SQL建表语句，建表语句包含字段定义和注释。</Description>
     <ReleaseNotes>Contact Me: darren4ten@163.com</ReleaseNotes>

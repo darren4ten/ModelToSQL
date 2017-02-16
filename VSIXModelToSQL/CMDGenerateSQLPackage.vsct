@@ -57,7 +57,7 @@
         <Icon guid="plugIcons" id="plugIcon1" />
         <CommandFlag>DynamicVisibility</CommandFlag>
         <Strings>
-          <ButtonText>打开ModelToSQL客户端</ButtonText>
+          <ButtonText>ModelToSQL复制到剪贴板</ButtonText>
         </Strings>
       </Button>
       <Button guid="guidCMDGenerateSQLPackageCmdSet" id="CMDGenerateCommentId" priority="0x0100" type="Button">
