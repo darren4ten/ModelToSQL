@@ -14,15 +14,15 @@ namespace VSIXModelToSQL
         /// </summary>
         public static void GenerateDisplayNameByPropertyComment(DTE dte)
         {
-            var clazz = ModelToSQLHelper.GetCodeClass2(dte);
+            var clazz = Utility.GetCodeClass2(dte);
             if (clazz != null)
             {
                 string functionContent = clazz.StartPoint.CreateEditPoint().GetText(clazz.EndPoint);
-                var properties = ModelToSQLHelper.GetCodeProperty2s(clazz);
+                var properties = Utility.GetCodeProperty2s(clazz);
                 foreach (var p in properties)
                 {
                     //如果已经包含了Display特性，则不添加
-                    var attrs = ModelToSQLHelper.GetCodeAttribute2s(p);
+                    var attrs = Utility.GetCodeAttribute2s(p);
                     if (attrs.Any(t => t.Name == "Display"))
                     {
                         continue;
@@ -30,7 +30,7 @@ namespace VSIXModelToSQL
 
                     TextPoint pStart = p.StartPoint;
 
-                    string comment = ModelToSQLHelper.GetCommentFromXMLString(p.DocComment);
+                    string comment = Utility.GetCommentFromXMLString(p.DocComment);
                     string displayText = "[Display(Name = \"" + comment + "\")]" + Environment.NewLine;
 
                     EditPoint editPoint = pStart.CreateEditPoint();
@@ -50,11 +50,11 @@ namespace VSIXModelToSQL
         /// <param name="dte"></param>
         public static void GenerateCommentByPropertyDisplayName(DTE dte)
         {
-            var clazz = ModelToSQLHelper.GetCodeClass2(dte);
+            var clazz = Utility.GetCodeClass2(dte);
             if (clazz != null)
             {
                 string functionContent = clazz.StartPoint.CreateEditPoint().GetText(clazz.EndPoint);
-                var properties = ModelToSQLHelper.GetCodeProperty2s(clazz);
+                var properties = Utility.GetCodeProperty2s(clazz);
                 foreach (var p in properties)
                 {
                     //如果已经包含了注释，则不添加
@@ -63,13 +63,13 @@ namespace VSIXModelToSQL
                         continue;
                     }
                     //获取第一个属性的位置
-                    var attrs = ModelToSQLHelper.GetCodeAttribute2s(p);
+                    var attrs = Utility.GetCodeAttribute2s(p);
                     int minLine = attrs.Min(s => s.StartPoint.Line);
                     var displayAttr = attrs.FirstOrDefault(s => s.Name == "Display");
                     string msg = "";
                     if (displayAttr != null)
                     {
-                        var nameArg = ModelToSQLHelper.GetCodeAttrArgs(displayAttr).FirstOrDefault(s => s.Name == "Name");
+                        var nameArg = Utility.GetCodeAttrArgs(displayAttr).FirstOrDefault(s => s.Name == "Name");
                         msg = nameArg.Value.Trim('"');
                     }
                     TextPoint pStart = p.StartPoint;

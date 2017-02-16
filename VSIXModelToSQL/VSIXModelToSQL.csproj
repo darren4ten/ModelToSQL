@@ -72,6 +72,7 @@
   <ItemGroup>
     <None Include="Key.snk" />
     <None Include="packages.config" />
+    <None Include="ReadMe.md" />
     <None Include="source.extension.vsixmanifest">
       <SubType>Designer</SubType>
     </None>
@@ -79,6 +80,7 @@
   <ItemGroup>
     <VSCTCompile Include="CMDGenerateSQLPackage.vsct">
       <ResourceName>Menus.ctmenu</ResourceName>
+      <SubType>Designer</SubType>
     </VSCTCompile>
     <Content Include="index.html" />
     <Content Include="plugIcon32.ico">
