@@ -57,6 +57,8 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="CMDGenerateDisplayName.cs" />
+    <Compile Include="CMDGenerateComment.cs" />
     <Compile Include="CMDGenerateSQL.cs" />
     <Compile Include="CMDGenerateSQLPackage.cs" />
     <Compile Include="DisplayOrCommentsGenerator.cs" />
@@ -65,6 +67,7 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utility.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Key.snk" />
@@ -82,6 +85,7 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
+    <Content Include="Resources\CMDGenerateComment.png" />
     <Content Include="Resources\CMDGenerateSQL.png" />
     <Content Include="Resources\CMDGenerateSQLPackage.ico" />
     <Content Include="Resources\plugIcon.ico" />

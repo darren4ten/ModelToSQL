@@ -70,6 +70,8 @@ namespace VSIXModelToSQL
         protected override void Initialize()
         {
             CMDGenerateSQL.Initialize(this);
+            CMDGenerateComment.Initialize(this);
+            CMDGenerateDisplayName.Initialize(this);
             base.Initialize();
         }
 

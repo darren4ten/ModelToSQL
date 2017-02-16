@@ -60,6 +60,22 @@
           <ButtonText>打开ModelToSQL客户端</ButtonText>
         </Strings>
       </Button>
+      <Button guid="guidCMDGenerateSQLPackageCmdSet" id="CMDGenerateCommentId" priority="0x0100" type="Button">
+        <Parent guid="guidCMDGenerateSQLPackageCmdSet" id="MyMenuGroup" />
+        <Icon guid="plugIcons" id="plugIcon1" />
+        <CommandFlag>DynamicVisibility</CommandFlag>
+        <Strings>
+          <ButtonText>生成Comment信息</ButtonText>
+        </Strings>
+      </Button>
+      <Button guid="guidCMDGenerateSQLPackageCmdSet" id="CMDGenerateDisplayNameId" priority="0x0100" type="Button">
+        <Parent guid="guidCMDGenerateSQLPackageCmdSet" id="MyMenuGroup" />
+        <Icon guid="plugIcons" id="plugIcon1" />
+        <CommandFlag>DynamicVisibility</CommandFlag>
+        <Strings>
+          <ButtonText>生成Display信息</ButtonText>
+        </Strings>
+      </Button>
     </Buttons>
 
     <!--The bitmaps section is used to define the bitmaps that are used for the commands.-->
@@ -76,6 +92,8 @@
 
   <KeyBindings>
     <KeyBinding guid="guidCMDGenerateSQLPackageCmdSet" id="CMDGenerateSQLId" editor="guidVSStd97" key1="1" mod1="Control" />
+    <KeyBinding guid="guidCMDGenerateSQLPackageCmdSet" id="CMDGenerateCommentId" editor="guidVSStd97" key1="2" mod1="Control" />
+    <KeyBinding guid="guidCMDGenerateSQLPackageCmdSet" id="CMDGenerateDisplayNameId" editor="guidVSStd97" key1="3" mod1="Control" />
   </KeyBindings>
 
   <Symbols>
@@ -90,6 +108,8 @@
     <GuidSymbol name="guidCMDGenerateSQLPackageCmdSet" value="{632d9672-850f-4e45-9820-bf635b7dde08}">
       <IDSymbol name="MyMenuGroup" value="0x0200" />
       <IDSymbol name="CMDGenerateSQLId" value="0x0100" />
+      <IDSymbol name="CMDGenerateCommentId" value="0x0300" />
+      <IDSymbol name="CMDGenerateDisplayNameId" value="0x0400" />
     </GuidSymbol>
 
     <GuidSymbol name="guidCodeWindowRightClickCmdSet" value="{D309F791-903F-11D0-9EFC-00A0C911004F}">
