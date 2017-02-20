@@ -62,9 +62,12 @@ namespace VSIXModelToSQL
                     {
                         continue;
                     }
+
+                    TextPoint pStart = p.StartPoint;
+
                     //获取第一个属性的位置
                     var attrs = Utility.GetCodeAttribute2s(p);
-                    int minLine = attrs.Min(s => s.StartPoint.Line);
+                    int minLine = attrs.Count > 0 ? attrs.Min(s => s.StartPoint.Line) : p.StartPoint.Line;
                     var displayAttr = attrs.FirstOrDefault(s => s.Name == "Display");
                     string msg = "";
                     if (displayAttr != null)
@@ -72,7 +75,6 @@ namespace VSIXModelToSQL
                         var nameArg = Utility.GetCodeAttrArgs(displayAttr).FirstOrDefault(s => s.Name == "Name");
                         msg = nameArg.Value.Trim('"');
                     }
-                    TextPoint pStart = p.StartPoint;
 
                     string comment = @" /// <summary>
                                         /// " + msg + @"
